@@ -17,7 +17,7 @@ emotion_to_id = {
 }
 
 class EmotionDataset(Dataset):
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
