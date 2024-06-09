@@ -1,10 +1,9 @@
 import os
 from PIL import Image
-import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
-
+from tqdm import tqdm
 
 
 emotion_to_id = {
@@ -32,7 +31,8 @@ class EmotionDataset(Dataset):
             label_dir = os.path.join(root_dir, label)
             if os.path.isdir(label_dir):
                 idx = emotion_to_id[label]
-                for image_name in os.listdir(label_dir):
+                image_names = os.listdir(label_dir)
+                for image_name in tqdm(image_names, desc=f"Loading subdataset {label}"):
                     image_path = os.path.join(label_dir, image_name)
                     if os.path.isfile(image_path):
                         image = Image.open(image_path).convert('L')  # Convert to grayscale
@@ -53,6 +53,5 @@ class EmotionDataset(Dataset):
 
         return image, label
 
-# Example usage:
-# Assuming 'data/emotions' is the directory with subdirectories for each emotion
-dataset = EmotionDataset(root_dir='data/emotions')
+if __name__ == '__main__':
+    dataset = EmotionDataset(root_dir='../dataset')
