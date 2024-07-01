@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from torchvision import transforms
+
 from captum.attr import Occlusion
 from captum.attr import visualization as viz
 
@@ -18,6 +19,7 @@ emotion_to_id = {
     "sad" : 5,
     "surprised" : 6
 }
+
 
 
 def eval_model(model, dataset, device, batch_size=32):
@@ -35,6 +37,7 @@ def eval_model(model, dataset, device, batch_size=32):
             correct += (predicted == labels).sum().item()
     return 100 * correct / total
 
+
 test_transform = transforms.Compose(
         [
             transforms.Grayscale(),
@@ -50,19 +53,24 @@ def grad_cam(model, image, category):
     input_tensor = torch.unsqueeze(image_tensor, dim=0)
 
     image = transforms.ToPILImage()(image_tensor)
+
     model.eval()
     # target_layers 选择最后一个卷积层
     # target_layers = [model.conv4[-1]]
     # target_layers = [model.features[-1]]
     # target_layers = [model.layer4[-1]]
+
     target_layers = [model.downsample_layers[3][1]]
     # target_layers = [model.head]
+
     cam = GradCAM(model=model, target_layers=target_layers)
     grayscale_cam = cam(input_tensor=input_tensor, aug_smooth=True)
     grayscale_cam = grayscale_cam[0, :]
 
     image = np.array(image.convert('RGB'), dtype=np.float32)
+
     print(image.shape)
+
     visualization = show_cam_on_image(image / 255., grayscale_cam, use_rgb=True)
     plt.title(category)
     plt.imshow(visualization)
@@ -89,3 +97,4 @@ def occulusion(model, image, category):
                                       show_colorbar=True,
                                       outlier_perc=2)
     plt.savefig('attributions.png')
+
