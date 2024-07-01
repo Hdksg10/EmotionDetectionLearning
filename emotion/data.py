@@ -25,7 +25,7 @@ class EmotionDataset(Dataset):
         self.root_dir = root_dir
         self.images = []
         self.labels = []
-        
+        self.transform = transform
         # Traverse the root directory to get all image paths and labels
         for _, label in enumerate(os.listdir(root_dir)):
             label_dir = os.path.join(root_dir, label)
@@ -37,7 +37,10 @@ class EmotionDataset(Dataset):
                     if os.path.isfile(image_path):
                         image = Image.open(image_path).convert('L')  # Convert to grayscale
                         # image_tensor = torch.from_numpy(np.array(image)).float().unsqueeze(0) / 255.0  # Convert to tensor
-                        image_tensor = transforms.ToTensor()(image)
+                        if self.transform:
+                            image_tensor = self.transform(image)
+                        else:
+                            image_tensor = transforms.ToTensor()(image)
                         self.images.append(image_tensor)
                         self.labels.append(idx)
 
